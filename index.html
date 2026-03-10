@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ravi42.com</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #060a04; }
+
+    @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes flicker {
+      0%{opacity:1} 92%{opacity:1} 93%{opacity:.85}
+      94%{opacity:1} 97%{opacity:.9} 100%{opacity:1}
+    }
+
+    .term-root {
+      background: #060a04;
+      min-height: 100vh;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      color: #39ff14;
+      animation: flicker 9s infinite;
+    }
+    .term-root::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, rgba(0,0,0,.22) 0px, rgba(0,0,0,.22) 1px,
+        transparent 1px, transparent 3px
+      );
+      pointer-events: none; z-index: 100;
+    }
+    .term-root::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.75) 100%);
+      pointer-events: none; z-index: 99;
+    }
+
+    #terminal       { max-width: 780px; margin: 0 auto; padding: 36px 24px 120px; }
+    .dim            { color: #1f6b0e; }
+    .amb            { color: #ffb000; }
+    .sep            { color: #1f6b0e; }
+
+    .cursor {
+      display: inline-block; width: 8px; height: 1em;
+      background: #39ff14; vertical-align: text-bottom;
+      animation: blink 1s step-end infinite; margin-left: 2px;
+    }
+    .echo-line      { display: flex; gap: 8px; margin-top: 2px; }
+    .prompt-sym     { color: #ffb000; user-select: none; flex-shrink: 0; }
+    .resp-block     {
+      border-left: 2px solid #1f6b0e;
+      padding: 6px 0 6px 14px;
+      margin: 6px 0 10px;
+      white-space: pre-wrap;
+      animation: fadeIn .15s ease forwards;
+    }
+    #input-row      { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+    #user-input     {
+      background: transparent; border: none; outline: none;
+      color: #39ff14; font-family: inherit; font-size: inherit;
+      flex: 1; caret-color: #39ff14;
+    }
+
+    /* sub-pages */
+    .page           { display: none; }
+    .page.active    { display: block; }
+    .page-inner     { max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+    .back-btn       {
+      cursor: pointer; color: #ffb000; background: none;
+      border: none; font-family: inherit; font-size: inherit;
+      display: inline-block; margin-bottom: 24px;
+    }
+    .back-btn:hover { text-decoration: underline; }
+    .hire-item      { margin: 10px 0; padding-left: 14px; border-left: 2px solid #1f6b0e; }
+    .hire-item::before { content: '→ '; color: #ffb000; }
+    .tag            { display: inline-block; background: #39ff14; color: #060a04; padding: 0 6px; font-weight: 700; font-size: 11px; }
+    .tag-amb        { background: #ffb000; color: #060a04; }
+    .tag-red        { background: #ff4444; color: #fff; }
+    .sublink        { color: #ffb000; cursor: pointer; background: none; border: none; font-family: inherit; font-size: inherit; }
+    .sublink:hover  { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- ── HOME PAGE ─────────────────────────────────────────── -->
+<div id="page-home" class="page active term-root">
+  <div id="terminal">
+    <div id="output"></div>
+    <div id="input-row">
+      <span class="prompt-sym">ravi@42:~$</span>
+      <input id="user-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <span class="cursor"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ── HIRE ME PAGE ──────────────────────────────────────── -->
+<div id="page-hire" class="page term-root">
+  <div class="page-inner">
+    <button class="back-btn" onclick="showPage('home')">← cd ~</button>
+    <pre class="dim"> _     _
+| |__ (_)_ __ ___   _ __ ___   ___
+| '_ \| | '__/ _ \ | '_ ` _ \ / _ \
+| | | | | | |  __/ | | | | | |  __/
+|_| |_|_|_|  \___| |_| |_| |_|\___| </pre>
+    <br>
+    <p class="dim">// ravi42.com/hire-me — the honest pitch</p><br>
+    <p><span class="tag">REASONS TO HIRE ME</span></p><br>
+    <div class="hire-item">I show up. Consistently. That's rarer than it sounds.</div>
+    <div class="hire-item">I ask the annoying question everyone else is afraid to ask in the meeting.</div>
+    <div class="hire-item">I've learned that "I don't know" is the fastest path to actually knowing.</div>
+    <div class="hire-item">I write documentation. Voluntarily. Without being asked.</div>
+    <div class="hire-item">I've shipped things that were imperfect and learned more from those than the polished ones.</div>
+    <div class="hire-item">I genuinely enjoy making complicated things simple — in code, in explanations, in process.</div>
+    <div class="hire-item">I will tell you when I think you're wrong. Respectfully. But clearly.</div>
+    <br>
+    <p><span class="tag tag-amb">BONUS FACTS</span></p><br>
+    <p class="dim">// things that might tip the scales</p><br>
+    <div class="hire-item">I've read the docs. Actually read them.</div>
+    <div class="hire-item">I know when to stop over-engineering and just ship the thing.</div>
+    <div class="hire-item">I care about the people using whatever I build, not just the people paying for it.</div>
+    <br>
+    <p class="sep">────────────────────────────────</p><br>
+    <p>Interested? <span class="amb">ravi@ravi42.com</span></p>
+    <p class="dim">// or just reply "42" and we'll figure it out</p><br>
+    <p class="dim">see also: <button class="sublink" onclick="showPage('donthire')">ravi42.com/dont-hire-me</button></p>
+  </div>
+</div>
+
+<!-- ── DON'T HIRE ME PAGE ────────────────────────────────── -->
+<div id="page-donthire" class="page term-root">
+  <div class="page-inner">
+    <button class="back-btn" onclick="showPage('home')">← cd ~</button>
+    <pre class="dim"> _             _  _    _     _
+| |_ ___ _ __ ( )| |_ | |__ (_)_ __ ___
+| __/ _ \ '_ \|/| __|| '_ \| | '__/ _ \
+| ||  __/ | | | | |_ | | | | | | |  __/
+ \__\___|_| |_|  \__|_||_|_|_|_|  \___|</pre>
+    <br>
+    <p class="dim">// ravi42.com/dont-hire-me — the other side</p><br>
+    <p><span class="tag tag-red">REASONS NOT TO HIRE ME</span></p><br>
+    <div class="hire-item">If you want someone who just says yes — I am not that person.</div>
+    <div class="hire-item">I will rename your variables. I can't help it. Bad names physically pain me.</div>
+    <div class="hire-item">I need to understand why before I commit to how. This slows things down upfront.</div>
+    <div class="hire-item">I have opinions about process. Strong ones. I'll share them once and then let it go. Mostly.</div>
+    <div class="hire-item">I read too many books and will occasionally reference them in Slack.</div>
+    <div class="hire-item">I don't do well with "we've always done it this way" as a full justification.</div>
+    <div class="hire-item">I will ask for a meeting agenda before attending a meeting with no agenda.</div>
+    <br>
+    <p><span class="tag tag-amb">KNOWN BUGS</span></p><br>
+    <p class="dim">// filed, acknowledged, not yet patched</p><br>
+    <div class="hire-item">I go deep on rabbit holes. Calendar blocking helps but doesn't fully solve it.</div>
+    <div class="hire-item">I underestimate how long polish takes. Every time. Awareness hasn't fixed it.</div>
+    <div class="hire-item">I find it genuinely difficult to stop improving something and call it done.</div>
+    <br>
+    <p class="sep">────────────────────────────────</p><br>
+    <p class="dim">Still interested after all that?</p>
+    <p><button class="sublink" onclick="showPage('hire')">ravi42.com/hire-me →</button></p><br>
+    <p class="dim">// either you're brave, or you're the right kind of person</p>
+  </div>
+</div>
+
+<script>
+  // ── Routing ──────────────────────────────────────────────────────────────
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    if (name === 'home') document.getElementById('user-input').focus();
+  }
+
+  // ── Answers ───────────────────────────────────────────────────────────────
+
+  const ANSWERS = {
+    help: `AVAILABLE QUERIES
+────────────────────────────────
+  who are you      → the basics
+  what do you do   → work & projects
+  contact          → how to reach me
+  interests        → things I care about
+  links            → find me elsewhere
+  where are you    → location
+  42               → the answer
+  hire-me          → go to /hire-me
+  dont-hire-me     → go to /dont-hire-me
+  clear            → clear terminal
+────────────────────────────────
+// or just ask anything`,
+    whoami:    "Ravi. Human. Curious by default, useful by effort.\nThis site is somewhere between a business card and a rubber duck.\nType help to see what this thing can do.",
+    work:      "I build things — mostly digital, sometimes physical, occasionally just in my head.\nCurrently: [your current role/project here].\nPreviously: things that shaped me in ways I'm still figuring out.",
+    contact:   "Best way to reach me: ravi@ravi42.com\n\nOr try:\n  ravi42.com/hire-me      ← if you want to work together\n  ravi42.com/dont-hire-me ← if you want the honest downsides first",
+    interests: "Things I actually care about (non-exhaustive):\n\n  → Making complex things understandable\n  → [your interest here]\n  → [your interest here]\n  → The space between \"good enough\" and \"great\"\n  → This number: 42",
+    fortytwo:  "42.\n\nThe answer to life, the universe, and everything.\nAlso a pretty good number to build a website around.\n\n// \"The problem is we don't know what the question is.\" — Douglas Adams",
+    links:     "You can find me at:\n\n  github.com/[yourhandle]\n  linkedin.com/in/[yourhandle]\n  twitter.com/[yourhandle]\n\n// update these — they're placeholders right now",
+    location:  "Physically located in: [Your City, Country]\nMentally located in: somewhere between a book and a browser tab.",
+    sudo:      "Permission denied.\n// nice try though",
+    matrix:    "You took the green pill.\nYou ended up on a terminal website. Could be worse.",
+    secret:    "There are 3 easter eggs on this site.\nYou've found 1.\n// keep digging",
+  };
+
+  // ── Fake AI ───────────────────────────────────────────────────────────────
+
+  const FAKE_AI = {
+    food:    ["Biologically necessary. Emotionally complicated.\nCurrently: whatever's closest to the keyboard.", "I have strong opinions about this.\nNone of them are useful right now.", "Food is just code your body runs at 37°C.\n// some of it is very buggy."],
+    sleep:   ["Sleep is a patch humans apply every 16 hours.\nI have not optimised this process.", "7-9 hours recommended. 6 achieved. 5 accepted.\nRepeat until weekend.", "Allegedly restorative. Still waiting for evidence."],
+    weather: ["Outside is just a different kind of inside with worse Wi-Fi.", "Meteorologically: unknown. Existentially: cloudy.\nTry a weather app. They're better at this.", "Warm enough to go outside. Inside anyway.\n// this is not a weather service."],
+    time:    ["Time is a flat circle.\nAlso, check your phone — I genuinely don't know.", "It is exactly the time you're wasting asking me this.\n// in a loving way.", "Late. Always a little late.\n// that's my answer and also my autobiography."],
+    money:   ["A useful fiction we've all agreed to participate in.\nNot financial advice.", "Not enough, probably. Statistically the answer.\n// not financial advice.", "Money is just points in a game everyone takes very seriously.\nTalk to an actual human about this one."],
+    love:    ["Complicated.\nAlso not really in my area of expertise as a website.", "Strong feelings are present. I've been asked not to elaborate.\n// by myself. Just now.", "Love is finding someone whose nonsense is compatible with your nonsense.\n// still testing this hypothesis."],
+    god:     ["42.\n// that's the best I've got.", "Big question. Small answer: I don't know.\nBut I appreciate you asking a website.", "Undefined.\n// no null check implemented yet."],
+    ai:      ["Ah. You're asking the fake AI about AI.\nThis is going well for both of us.", "I am a series of if/else statements wearing a trench coat.\n// no actual intelligence. Just vibes.", "// WARNING: asking a terminal website about AI may cause recursion\nStack overflow imminent."],
+    death:   ["Inevitable. Not recommended.\nI try not to think about it before 10am.", "The universe's way of telling you to ship faster.\n// or slower. Unclear.", "The original deadline.\n// everything else is negotiable."],
+    default: [
+      "Interesting.\nI've decided to interpret that as a philosophical question.\nThe answer is: it depends, and also 42.",
+      "My training data didn't cover this.\n// my training data is Ravi's general vibe\nHe'd probably shrug and make coffee.",
+      "Computing...\n.\n..\n...\nResult: unclear. Confidence: high.\n// don't read into that.",
+      "I ran your query through my neural network.\nThe network said: \"not my department.\"\nI agree with the network.",
+      "ERROR 418: I'm a teapot.\n// just kidding\nBut I don't have a good answer. Try: help",
+      "That question has been received, considered, and gently set aside.\nHere's something better: type 42.",
+      "Fascinating input.\nProcessing with my full 0.0001% brain capacity.\nResult: ¯\\_(ツ)_/¯",
+      "I searched my soul for an answer.\nMy soul said: \"ravi@ravi42.com — ask the human.\"",
+    ],
+  };
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function getFakeAI(input) {
+    const t = input.toLowerCase();
+    if (/food|eat|hungry|pizza|coffee|chai|lunch|dinner|breakfast/.test(t)) return pick(FAKE_AI.food);
+    if (/sleep|tired|rest|nap|insomnia/.test(t))                            return pick(FAKE_AI.sleep);
+    if (/weather|rain|sun|hot|cold|outside/.test(t))                        return pick(FAKE_AI.weather);
+    if (/time|clock|hour/.test(t))                                           return pick(FAKE_AI.time);
+    if (/money|rich|salary|pay|broke|invest/.test(t))                       return pick(FAKE_AI.money);
+    if (/love|relationship|dating|heart|crush|lonely/.test(t))              return pick(FAKE_AI.love);
+    if (/god|religion|pray|universe|cosmos|exist/.test(t))                  return pick(FAKE_AI.god);
+    if (/\bai\b|llm|gpt|claude|chatgpt|robot|neural/.test(t))              return pick(FAKE_AI.ai);
+    if (/die|death|dead|mortality|funeral/.test(t))                         return pick(FAKE_AI.death);
+    return pick(FAKE_AI.default);
+  }
+
+  function getAnswer(raw) {
+    const input = raw.trim();
+    const lower = input.toLowerCase();
+    if (!input) return null;
+
+    if (lower === 'help')                                          return { text: ANSWERS.help };
+    if (lower === 'clear')                                         return { clear: true };
+    if (lower === 'hire-me' || lower === 'hire me')               return { nav: 'hire' };
+    if (lower === 'dont-hire-me' || lower === "don't hire me")    return { nav: 'donthire' };
+
+    const matchers = [
+      { keys: ["who are you","who is ravi","whoami","about","tell me","introduce"], ans: ANSWERS.whoami },
+      { keys: ["what do you do","work","job","career","profession"],                ans: ANSWERS.work },
+      { keys: ["contact","email","reach","get in touch"],                           ans: ANSWERS.contact },
+      { keys: ["interest","hobbie","like","enjoy","passionate","care about"],       ans: ANSWERS.interests },
+      { keys: ["42","forty","hitchhiker","meaning of life","answer to life"],       ans: ANSWERS.fortytwo },
+      { keys: ["link","social","twitter","github","linkedin","follow"],             ans: ANSWERS.links },
+      { keys: ["where","location","based","city","live","from"],                   ans: ANSWERS.location },
+      { keys: ["sudo","rm -rf","hack"],                                             ans: ANSWERS.sudo },
+      { keys: ["matrix","red pill","blue pill"],                                    ans: ANSWERS.matrix },
+      { keys: ["secret","easter egg","hidden","password"],                          ans: ANSWERS.secret },
+    ];
+    for (const { keys, ans } of matchers)
+      if (keys.some(k => lower.includes(k))) return { text: ans };
+
+    return { text: getFakeAI(input), fakeai: true };
+  }
+
+  // ── Terminal DOM helpers ───────────────────────────────────────────────────
+
+  const output   = document.getElementById('output');
+  const inputEl  = document.getElementById('user-input');
+  const inputRow = document.getElementById('input-row');
+
+  function addLine(html, cls) {
+    const d = document.createElement('div');
+    if (cls) d.className = cls;
+    d.innerHTML = html;
+    output.appendChild(d);
+    d.scrollIntoView({ block: 'end' });
+  }
+
+  function addEcho(text) {
+    addLine(`<span class="prompt-sym">ravi@42:~$</span> <span style="color:#fff">${esc(text)}</span>`, 'echo-line');
+  }
+
+  function addResp(text, dimColor) {
+    const d = document.createElement('div');
+    d.className = 'resp-block';
+    d.style.color = dimColor ? '#1f6b0e' : '#39ff14';
+    d.textContent = text;
+    output.appendChild(d);
+    d.scrollIntoView({ block: 'end' });
+    return d;
+  }
+
+  function addThinking() {
+    const d = document.createElement('div');
+    d.className = 'resp-block dim';
+    d.textContent = '[RAVI-42 THINKING]';
+    output.appendChild(d);
+    d.scrollIntoView({ block: 'end' });
+    let dots = 0;
+    const timer = setInterval(() => {
+      dots = (dots + 1) % 4;
+      d.textContent = '[RAVI-42 THINKING' + '.'.repeat(dots) + ']';
+      d.scrollIntoView({ block: 'end' });
+    }, 350);
+    return { el: d, stop: () => clearInterval(timer) };
+  }
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+
+  addLine('──────────────────────────────────────────', 'sep');
+  addLine('type "help" to see what I\'ve pre-answered.  type anything else to ask.', 'dim');
+  addLine('──────────────────────────────────────────', 'sep');
+  inputEl.focus();
+
+  // ── Input handler ─────────────────────────────────────────────────────────
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const val = inputEl.value;
+    inputEl.value = '';
+    if (!val.trim()) return;
+
+    addEcho(val);
+    const result = getAnswer(val);
+    if (!result) return;
+
+    if (result.clear) {
+      output.innerHTML = '';
+      return;
+    }
+    if (result.nav) {
+      addResp('→ navigating to /' + (result.nav === 'hire' ? 'hire-me' : 'dont-hire-me') + '...', true);
+      setTimeout(() => showPage(result.nav), 400);
+      return;
+    }
+    if (result.fakeai) {
+      // disable input while thinking
+      inputEl.disabled = true;
+      const thinking = addThinking();
+      const delay = 800 + Math.random() * 1200;
+      setTimeout(() => {
+        thinking.stop();
+        thinking.el.remove();
+        addResp(result.text);
+        inputEl.disabled = false;
+        inputEl.focus();
+      }, delay);
+      return;
+    }
+    addResp(result.text);
+  });
+
+  // click anywhere to focus input
+  document.getElementById('page-home').addEventListener('click', () => inputEl.focus());
+</script>
+</body>
+</html>
